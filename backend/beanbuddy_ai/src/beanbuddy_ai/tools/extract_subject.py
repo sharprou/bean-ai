@@ -184,7 +184,7 @@ async def extract_subject_function(
         yield FunctionInfo.from_fn(
             _extract_subject,
             description=(
-                "【图片主体提取工具】适用于BeanBuddy-AI的图片输入路径：\n"
+                "【图片主体提取工具】适用于beanai的图片输入路径：\n"
                 "1. 输入：公网可访问的原始图片HTTP/HTTPS URL（如用户上传图片的临时链接）；\n"
                 "2. 处理：调用Qwen-Image-Edit API自动抠图、移除背景、保留主体细节；\n"
                 "3. 输出：处理后的图片URL（PNG-24格式，含透明背景，可直接用于后续Q版风格化）。\n"

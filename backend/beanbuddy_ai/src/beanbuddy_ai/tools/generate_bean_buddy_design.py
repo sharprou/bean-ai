@@ -1,6 +1,8 @@
 import json
 import logging
 import math
+import os
+import csv
 # 保留统计信息
 from collections import Counter
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -554,7 +556,83 @@ def process_large_image_optimized(image_url: str, session: Any,
     if image_output_path:
         canvas.save(image_output_path, optimize=True, quality=95)
 
+   
+# 10. 生成CSV文件 - 简化版本，直接保存到当前工作目录
+    csv_filename = f"bead_design_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    
+    # 直接使用当前工作目录作为保存位置（最可靠的方式）
+    csv_output_path = csv_filename  # 直接保存到当前目录
+    
+    # 打印调试信息
+    print(f"=== CSV生成调试信息 ===")
+    print(f"当前工作目录: {os.getcwd()}")
+    print(f"CSV文件名: {csv_filename}")
+    print(f"CSV保存路径: {csv_output_path}")
+    
+    # 计算网格的总行数和总列数
+    total_columns = width // grid_size
+    total_rows = height // grid_size
+    print(f"网格大小: {total_rows}行 x {total_columns}列")
+
+    # 准备CSV数据：按空间布局（从上到下，从左到右）保存所有位置
+    csv_data = []
+    
+    # 创建一个映射，用于快速查找特定单元格的颜色
+    cell_color_map = {}
+    for cell_data in color_mapping.values():
+        x_pixel = cell_data['position']['x']
+        y_pixel = cell_data['position']['y']
+        cell_x = x_pixel // grid_size + 1  # 1-based索引
+        cell_y = y_pixel // grid_size + 1  # 1-based索引
+        cell_color_map[(cell_y, cell_x)] = cell_data['matched_color']['hex']
+    
+    print(f"有颜色的单元格数量: {len(cell_color_map)}")
+
+    # 遍历所有网格单元格
+    for row in range(1, total_rows + 1):  # 行从1开始
+        for col in range(1, total_columns + 1):  # 列从1开始
+            # 检查该单元格是否有颜色
+            if (row, col) in cell_color_map:
+                color_hex = cell_color_map[(row, col)]
+            else:
+                color_hex = "TRANSPARENT"
+            
+            # 只保存x、y和十六进制颜色值
+            csv_data.append({
+                'x': col,
+                'y': row,
+                'color': color_hex
+            })
+    
+    print(f"CSV数据总行数: {len(csv_data)}")
+
+    # 写入CSV文件
+    try:
+        print(f"开始写入CSV文件...")
+        with open(csv_output_path, 'w', newline='', encoding='utf-8') as csvfile:
+            fieldnames = ['x', 'y', 'color']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            
+            writer.writeheader()
+            row_count = 0
+            for row in csv_data:
+                writer.writerow(row)
+                row_count += 1
+        
+        print(f"CSV文件写入完成! 共写入 {row_count} 行")
+        logger.info(f"CSV文件已成功生成: {os.path.abspath(csv_output_path)}")
+        logger.info(f"CSV文件包含 {len(csv_data)} 个拼豆位置")
+    except Exception as e:
+        print(f"CSV文件写入失败! 错误: {e}")
+        logger.error(f"生成CSV文件失败: {csv_output_path}, 错误: {e}")
+        import traceback
+        traceback.print_exc()  # 打印完整的错误堆栈
+        # 如果CSV生成失败，仍然返回其他结果，但csv_filename设置为None
+        csv_filename = None
+
     return {
         'color_statistics': sorted_dict,
         'total_beads': sum(color_count.values()),
+        'csv_filename': csv_filename  # 返回CSV文件名，如果生成失败则为None
     }
+    

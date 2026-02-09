@@ -1,4 +1,4 @@
-AIQ Toolkit-UI Third-Party Licenses
+bean-ai Third-Party Licenses
 =================================
 
 This file contains third-party license information for software packages used in this project.

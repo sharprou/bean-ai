@@ -64,9 +64,9 @@ export const ChatInput = ({
     try {
       return new OSS({
         region: process.env.REACT_APP_OSS_REGION || 'oss-cn-beijing',
-        accessKeyId: process.env.REACT_APP_OSS_ACCESS_KEY_ID || 'LTAI5tMdnfA1ZARnE1r8pVFf',
-        accessKeySecret: process.env.REACT_APP_OSS_ACCESS_KEY_SECRET,
-        bucket: process.env.REACT_APP_OSS_BUCKET || 'hackathon-aiqtoolkit',
+        accessKeyId: process.env.REACT_APP_OSS_ACCESS_KEY_ID || '',
+        accessKeySecret: process.env.REACT_APP_OSS_ACCESS_KEY_SECRET || '',
+        bucket: process.env.REACT_APP_OSS_BUCKET || 'sharpruo',
         authorizationV4: true, // 浏览器端必须开启V4签名
         secure: true, // 用HTTPS（避免HTTP跨域问题）
       });

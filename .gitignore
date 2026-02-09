@@ -200,6 +200,11 @@ data/
 logs/
 results/
 
+# 生成的拼豆设计文件
+*.csv
+bead_design_*.png
+csv/
+
 /backend/.cursor
 /backend/examples/
 /backend/.tmp/
